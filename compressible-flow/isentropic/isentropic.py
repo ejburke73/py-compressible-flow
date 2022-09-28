@@ -10,9 +10,10 @@
 # Add sonic ratios
 # Add class and function documentation and usage
 
-
 class CompressibleFlow:
-    r"""This class solves for all possible thermodynamic states of a compressible
+    r"""CompressibleFlow class
+    
+    This class solves for all possible thermodynamic states of a compressible
     flow using isentropic relations. These relations assume the working fluid
     is a calorically perfect gas (CPG) with constant specific heats, :math:`c_p`
     and :math:`c_v`. Assumptions also used in the derivation of these relationships:
@@ -25,43 +26,44 @@ class CompressibleFlow:
     points on a streamline is valid. Use of isentropic relations in non-
     isentropic flows can still be useful for understanding the bulk trends
     of a compressible flow problem.
-
-    :param M: Mach number, fluid velocity/speed of sound, defaults to None
-    :type M: float or int, optional
-    :param u: fluid velocity, length/time, defaults to None
-    :type u: float or int or None, optional
-    :param a: fluid speed of sound, defaults to None
-    :type a: float, optional
-    :param p: fluid static pressure, force/area, defaults to None
-    :type p: float or int or None, optional
-    :param rho: fluid static density, mass/volume, defaults to None
-    :type rho: float or int or None, optional
-    :param T: fluid static temperature, degrees, defaults to None
-    :type T: float or int or None, optional
-    :param p_t: fluid total pressure, force/area, defaults to None
-    :type p_t: float or int or None, optional
-    :param rho_t: fluid total density, mass/volume, defaults to None
-    :type rho_t: float or int or None, optional
-    :param T_t: fluid total temperature, degrees, defaults to None
-    :type T_t: float or int or None, optional
-    :param p_t_ratio: ratio of total pressure to static pressure, defaults to None
-    :type p_t_ratio: float or None, optional
-    :param rho_t_ratio: ratio of total density to static density, defaults to None
-    :type rho_t_ratio: float or None, optional
-    :param T_t_ratio: ratio of total temperature to static temperature, defaults to None
-    :type T_t_ratio: float or None, optional
-    :param gamma: ratio of specific heats, cp/cv, defaults to 1.4 for calorically perfect air
-    :type gamma: float
-    :param gas: working fluid, eventually to be updated with other gas library, defaults to 'Air'
-    :type gas: str, optional
-    :param R: specific gas constant, defaults to 287 J/kg*K for calorically perfect air
-    :type R: int or float
     """
 
     def __init__(self,M=None,u=None,a=None,p=None,rho=None,T=None,p_t=None,
                 rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,
                 T_t_ratio=None,gamma=1.4,gas='Air',R=287):
-        """Constructor method for :class:`CompressibleFlow` class
+        """
+        Parameters
+        ----------
+        M : float or int, optional
+            Mach number, fluid velocity/speed of sound, by default None
+        u : float or int or None, optional
+            fluid velocity, length/time, by default None
+        a : float or int or None, optional
+            fluid speed of sound, by default None
+        p : float or int or None, optional
+            fluid static pressure, force/area, by default None
+        rho : float or int or None, optional
+            fluid static density, mass/volume, by default None
+        T : float or int or None, optional
+            fluid static temperature, degrees, by default None
+        p_t : float or int or None, optional
+            fluid total pressure, force/area, by default None
+        rho_t : float or int or None, optional
+            fluid total density, mass/volume, by default None
+        T_t : float or int or None, optional
+            fluid total temperature, degrees, by default None
+        p_t_ratio : float or int or None, optional
+            ratio of total pressure to static pressure, by default None
+        rho_t_ratio :float or int or None, optional
+            ratio of total density to static density, by default None
+        T_t_ratio :float or int or None, optional
+            ratio of total temperature to static temperature, by default None
+        gamma : float
+            ratio of specific heats, cp/cv, by default 1.4 for calorically perfect air
+        gas : str, optional
+            working fluid, eventually to be updated with other gas library, by default 'Air'
+        R : int or float, optional
+            specific gas constant, by default 287 J/kg*K for calorically perfect air
         """
         self.M = M
         self.u = u
@@ -80,7 +82,15 @@ class CompressibleFlow:
         self.R = R
 
     def isentropic_state(self):
-        """Checks inputs to determine which method of calculations are performed
+        """Calculates thermodynamic state to max extent possible.
+        
+        Depending on arguments given when instantiating CompressibleFlow object,
+        different end states are viable for defining the object. Without fully
+        defining the thermodynamic state (i.e., providing two of :math:`p, 
+        \\rho, T`), only the property ratios are able to be calculated, assuming 
+        a Mach number is given. This function determines which method of
+        calculation is appropriate for the given inputs, and performs the
+        appropriate calculations.
         """
         mode = self.__isentropic_input_check()
         print(f'Calculation mode: {mode}')
@@ -95,12 +105,17 @@ class CompressibleFlow:
             self.__isentropic_state_method_2()
 
     def __isentropic_state_method_0(self):
+        """Calculates total to static ratios for :math:`p, \\rho, T` based on
+        input Mach and :math:`\\gamma`.
+        """
         self.p_t_ratio = get_pressure_ratio(M=self.M,gamma=self.gamma,R=self.R)
         self.rho_t_ratio = get_density_ratio(M=self.M,gamma=self.gamma,R=self.R)
         self.T_t_ratio = get_temperature_ratio(M=self.M,gamma=self.gamma,R=self.R)
         
     def __isentropic_state_method_1(self):
-
+        """Calculates all thermodynamic properties based on inputs.
+        Requires two of :math:`p, \\rho, T` and one of :math:`M, u`.
+        """
         while None in self.__dict__.values():
             if not self.p:
                 self.p = get_static_pressure(gamma=self.gamma,R=self.R,M=self.M,u=self.u,rho=self.rho,T=self.T,p_t=self.p_t,rho_t=self.rho_t,T_t=self.T_t,p_t_ratio=self.p_t_ratio,rho_t_ratio=self.rho_t_ratio,T_t_ratio=self.T_t_ratio)
@@ -128,6 +143,9 @@ class CompressibleFlow:
                 self.T_t_ratio = get_temperature_ratio(gamma=self.gamma,R=self.R,M=self.M,u=self.u,p=self.p,rho=self.rho,T=self.T,p_t=self.p_t,rho_t=self.rho_t,T_t=self.T_t,p_t_ratio=self.p_t_ratio,rho_t_ratio=self.rho_t_ratio)
 
     def __isentropic_state_method_2(self):
+        """Calculates all total to static ratios and Mach number based on
+        input of one total to static ratio and gamma.
+        """
         while None in [self.M,self.p_t_ratio,self.rho_t_ratio,self.T_t_ratio]:
             if not self.M:
                 self.M = get_mach_number(gamma=self.gamma,p_t_ratio=self.p_t_ratio,rho_t_ratio=self.rho_t_ratio,T_t_ratio=self.T_t_ratio)
@@ -140,7 +158,18 @@ class CompressibleFlow:
             pass
 
     def __isentropic_input_check(self):
+        """Checks inputs to determine which method of calculations are performed.
+        
+        This function determines which method of calculation is appropriate for 
+        the given inputs, and outputs an integer variable associated with said
+        method.
 
+        Returns
+        -------
+        mode : int
+            Integer describing which method of calculation to use to
+            evaluate state
+        """
         mode = None
 
         if self.M:
@@ -175,30 +204,59 @@ class CompressibleFlow:
 
 
 def get_sonic_velocity(gamma=1.4,R=287,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None):
-    """Calculates the speed of sound for a given fluid. Defaults to air with \gamma = 1.4, R = 287 J/kg*K.
+    """Calculates the speed of sound, :math:`a`, for a given fluid.
+    Defaults to air with \gamma = 1.4, R = 287 J/kg*K.
 
-    :param gamma: :py:param:`.CompressibleFlow.gamma`
-    :type gamma: float
-    :param R: specific gas constant, defaults to 287 J/kg*K for calorically perfect air
-    :type R: int or float
-    :param u: fluid velocity, length/time, defaults to None
-    :type u: float or int or None, optional
-    :param p: fluid static pressure, force/area, defaults to None
-    :type p: float or int or None, optional
-    :param rho: fluid static density, mass/volume, defaults to None
-    :type rho: float or int or None, optional
-    :param T: fluid static temperature, degrees, defaults to None
-    :type T: float or int or None, optional
-    :param p_t: fluid total pressure, force/area, defaults to None
-    :type p_t: float or int or None, optional
-    :param rho_t: fluid total density, mass/volume, defaults to None
-    :type rho_t: float or int or None, optional
-    :param T_t: fluid total temperature, degrees, defaults to None
-    :type T_t: float or int or None, optional
-    :raises ValueError: Insufficient inputs provided to calculate sonic velocity.
-    :return: Speed of sound defined by function arguments, 
-        calculated according to valid combination of function args
-    :rtype: float
+    This function can solve for the speed of sound in several ways.
+
+    Given :math:`T`:
+
+        * :math:`a = \\sqrt{\\gamma*R*T}`.
+
+    Given :math:`P` and :math:`\\rho` 
+        
+        * :math:`a = \\sqrt{\\gamma*p/\\rho}`.
+
+    If the fluid velocity or Mach number are 0 the flow is stagnant and
+    the speed of sound in the fluid is calculated using the above relations
+    with total conditions:
+
+        * :math:`a = \\sqrt{\\gamma*R*T_t}`
+
+        * :math:`a = \\sqrt{\\gamma*p_t/\\rho_t}`
+
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    u: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.u`, by default None
+    p: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p`, by default None
+    rho: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho`, by default None
+    T: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T, by default None`
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None
+    rho_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t`, by default None
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+
+    Raises
+    ------
+    ValueError
+        Insufficient inputs provided to calculate sonic velocity.
+
+    Returns
+    -------
+
+    a : float
+        Speed of sound, :math:`a`, [:math:`length/time`]
     """
     if T:
         a = (gamma*R*T)**.5
@@ -219,7 +277,32 @@ def get_sonic_velocity(gamma=1.4,R=287,u=None,p=None,rho=None,T=None,p_t=None,rh
     return a
 
 def get_fluid_velocity(gamma=1.4,R=287,M=None,a=None,p=None,rho=None,T=None):
+    """Calculates fluid velocity, :math:`u`, based on Mach number and 
+    thermodynamic properties.
 
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+    a :float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.a`, by default None
+    p: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p`, by default None
+    rho: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho`, by default None
+    T: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T`, by default None
+
+    Returns
+    -------
+    u : float
+        Fluid velocity, :math:`u`, [:math:`length/time`]
+    """
     if M and a:
         u = M*a
 
@@ -236,8 +319,39 @@ def get_fluid_velocity(gamma=1.4,R=287,M=None,a=None,p=None,rho=None,T=None):
     return u
 
 def get_mach_number(gamma=1.4,R=287,a=None,u=None,p=None,rho=None,T=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
-    """
-    Calculates Mach number
+    """Calculates fluid Mach number, :math:`M`.
+
+    Depending on arguments given, calculates Mach number in one of several
+    possible ways.
+
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K 
+    a :float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.a`, by default None
+    u: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.u`, by default None
+    p: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p`, by default None
+    rho: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho`, by default None
+    T: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T`, by default None
+    p_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t_ratio`, by default None
+    rho_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t_ratio`, by default None
+    T_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t_ratio`, by default None
+
+    Returns
+    -------
+    M : float or int
+        Mach number, :math:`u/a`
     """
     if u and a:
         M = u/a
@@ -267,7 +381,41 @@ def get_mach_number(gamma=1.4,R=287,a=None,u=None,p=None,rho=None,T=None,p_t_rat
     return M
 
 def get_static_pressure(gamma=1.4,R=287,M=None,u=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
+    """Calculates fluid static pressure, :math:`p`.
 
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+    u: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.u`, by default None
+    rho: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho`, by default None
+    T: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T, by default None`
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None
+    rho_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t`, by default None
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+    p_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t_ratio`, by default None
+    rho_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t_ratio`, by default None
+    T_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t_ratio`, by default None
+
+    Returns
+    -------
+    p : float 
+        fluid static pressure, :math:`p`, [:math:`Force/Area`]
+    """
     if rho and T:
         p = rho*R*T
     
@@ -296,7 +444,41 @@ def get_static_pressure(gamma=1.4,R=287,M=None,u=None,rho=None,T=None,p_t=None,r
     return p
 
 def get_total_pressure(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
+    """Calculates fluid total pressure, :math:`p_t`.
 
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+    u: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.u`, by default None
+    p : _type_, optional
+        *See* :paramref:`.CompressibleFlow.p`, by default None
+    rho: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho`, by default None
+    T: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T, by default None`
+    rho_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t`, by default None
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+    p_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t_ratio`, by default None
+    rho_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t_ratio`, by default None
+    T_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t_ratio`, by default None
+
+    Returns
+    -------
+    p_t : float
+        fluid total pressure, :math:`p_t`, [:math:`Force/Area`]
+    """
     if rho_t and T_t:
         p_t = rho_t*R*T_t
 
@@ -325,7 +507,41 @@ def get_total_pressure(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,rho_
     return p_t
 
 def get_pressure_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,rho_t_ratio=None,T_t_ratio=None):
+    """Calculates fluid total-to-static pressure ratio, :math:`p_t/p`.
 
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+    u: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.u`, by default None
+    p : _type_, optional
+        *See* :paramref:`.CompressibleFlow.p`, by default None
+    rho: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho`, by default None
+    T: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T, by default None`
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None
+    rho_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t`, by default None
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+    rho_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t_ratio`, by default None
+    T_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t_ratio`, by default None
+
+    Returns
+    -------
+    p_t_ratio : float
+        total-to-static pressure ratio, :math:`p_t/p`
+    """
     if M:
         p_t_ratio = (1 + (gamma-1) / 2 * M**2)**(gamma/(gamma-1))
 
@@ -342,7 +558,41 @@ def get_pressure_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=
     return p_t_ratio
 
 def get_static_temperature(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
+    """Calculates fluid static temperature, :math:`T`.
 
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+    u: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.u`, by default None
+    p : _type_, optional
+        *See* :paramref:`.CompressibleFlow.p`, by default None
+    rho: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho`, by default None
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None   
+    rho_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t`, by default None
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+    p_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t_ratio`, by default None
+    rho_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t_ratio`, by default None
+    T_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t_ratio`, by default None
+
+    Returns
+    -------
+    T : float
+        fluid static temperature, :math:`T`, [:math:`degrees`].
+    """
     if p and rho:
         T = p/(rho*R)
 
@@ -371,7 +621,41 @@ def get_static_temperature(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,p_t=Non
     return T
 
 def get_total_temperature(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
+    """Calculates fluid total temperature, :math:`T_t`
 
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+    u: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.u`, by default None
+    p : _type_, optional
+        *See* :paramref:`.CompressibleFlow.p`, by default None
+    rho: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho`, by default None
+    T: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T, by default None`
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None   
+    rho_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t`, by default None
+    p_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t_ratio`, by default None
+    rho_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t_ratio`, by default None
+    T_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t_ratio`, by default None
+
+    Returns
+    -------
+    T_t : float
+        fluid total temperature, :math:`T_t`, [:math:`degrees`].
+    """
     if p_t and rho_t:
         T_t = p_t/(rho_t*R)
 
@@ -400,7 +684,41 @@ def get_total_temperature(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p
     return T_t
 
 def get_temperature_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None):
+    """Calculates fluid total-to-static temperature ratio, :math:`T_t/T`.
 
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+    u: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.u`, by default None
+    p : _type_, optional
+        *See* :paramref:`.CompressibleFlow.p`, by default None
+    rho: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho`, by default None
+    T: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T, by default None`
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None   
+    rho_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t`, by default None
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+    p_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t_ratio`, by default None
+    rho_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t_ratio`, by default None
+
+    Returns
+    -------
+    T_t_ratio : float
+        total-to-static temperature ratio, :math:`T_t/T`
+    """
     if M:
         T_t_ratio = (1 + (gamma-1) / 2 * M**2)
 
@@ -417,7 +735,41 @@ def get_temperature_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p
     return T_t_ratio
 
 def get_static_density(gamma=1.4,R=287,M=None,u=None,p=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
+    """Calculates fluid static density, :math:`\\rho`
 
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+    u: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.u`, by default None
+    p : _type_, optional
+        *See* :paramref:`.CompressibleFlow.p`, by default None
+    T: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T, by default None`
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None   
+    rho_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t`, by default None
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+    p_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t_ratio`, by default None
+    rho_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t_ratio`, by default None
+    T_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t_ratio`, by default None
+
+    Returns
+    -------
+    rho : float
+        fluid static density, :math:`\\rho`, [:math:`mass/volume`]
+    """
     if p and T:
         rho = p/(R*T)
 
@@ -446,7 +798,41 @@ def get_static_density(gamma=1.4,R=287,M=None,u=None,p=None,T=None,p_t=None,rho_
     return rho
 
 def get_total_density(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
+    """Calculates fluid total density.
 
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+    u: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.u`, by default None
+    p : _type_, optional
+        *See* :paramref:`.CompressibleFlow.p`, by default None
+    rho: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho`, by default None
+    T: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T, by default None`
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None   
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+    p_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t_ratio`, by default None
+    rho_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t_ratio`, by default None
+    T_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t_ratio`, by default None
+
+    Returns
+    -------
+    rho_t : float
+        fluid total density, :math:`\\rho_t`, [:math:`mass/volume`]
+    """
     if p_t and T_t:
         rho_t = p_t/(R*T_t)
 
@@ -475,7 +861,41 @@ def get_total_density(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=N
     return rho_t
 
 def get_density_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,T_t_ratio=None):
+    """Calculates fluid total-to-static density ratio, :math:`\\rho_t/\\rho`.
 
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+    u: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.u`, by default None
+    p : _type_, optional
+        *See* :paramref:`.CompressibleFlow.p`, by default None
+    rho: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho`, by default None
+    T: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T, by default None`
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None   
+    rho_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.rho_t`, by default None
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+    p_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t_ratio`, by default None
+    T_t_ratio : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t_ratio`, by default None
+
+    Returns
+    -------
+    rho_t_ratio : float
+        total-to-static temperature ratio, :math:`\\rho_t/\\rho`
+    """
     if M:
         rho_t_ratio = (1 + (gamma-1) / 2 * M**2)**(1/(gamma-1))
 
