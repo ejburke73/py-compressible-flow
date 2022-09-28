@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 
-from shocks import NormalShock
+#from shocks import NormalShock
 
 # Currently will run in a loop until all states fully defined
 # Does not check for compatibility between states
 # Does not catch errors
-# Need to add option to input Mach and gamma to get total/static ratios without looping forever
 
 # To Do:
 # Add sonic ratios
+# Add class and function documentation and usage
+
+from wsgiref.validate import InputWrapper
+
 
 class CompressibleFlow:
 
@@ -117,49 +120,69 @@ class CompressibleFlow:
             print(str(key) + ': ' + str(value))
 
     def shock(self):
-        shocked = NormalShock(M1=self.M,gamma=self.gamma,p1_static=self.p,rho1_static=self.rho_static,T1_static=self.T_static,p1_total=self.p_total,T1_total=self.T_total,rho1_total=self.rho_total)
-        post_shock = CompressibleFlow(M=shocked.M2,p=shocked.p2_static,rho_static=shocked.rho2_static,T_static=shocked.T2_static)
-        return shocked, post_shock
+        #shocked = NormalShock(M1=self.M,gamma=self.gamma,p1_static=self.p,rho1_static=self.rho_static,T1_static=self.T_static,p1_total=self.p_total,T1_total=self.T_total,rho1_total=self.rho_total)
+        #post_shock = CompressibleFlow(M=shocked.M2,p=shocked.p2_static,rho_static=shocked.rho2_static,T_static=shocked.T2_static)
+        #return shocked, post_shock
+        pass
 
 
 def get_sonic_velocity(gamma=1.4,R=287,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None):
+    """Calculates the speed of sound for a given fluid. Defaults to air with \gamma = 1.4, R = 287 J/kg*K.
 
-    a = None
-    
-    while not a:
+    :param gamma: ratio of specific heats, cp/cv, defaults to 1.4 for calorically perfect air
+    :type gamma: float
+    :param R: specific gas constant, defaults to 287 J/kg*K for calorically perfect air
+    :type R: int or float
+    :param u: fluid velocity, length/time
+    :type u: float or int or None, optional
+    :param p: fluid static pressure, force/area
+    :type p: float or int or None, optional
+    :param rho: fluid static density, mass/volume
+    :type rho: float or int or None, optional
+    :param T: fluid static temperature, degrees
+    :type T: float or int or None, optional
+    :param p_t: fluid total pressure, force/area
+    :type p_t: float or int or None, optional
+    :param rho_t: fluid total density, mass/volume
+    :type rho_t: float or int or None, optional
+    :param T_t: fluid total temperature, degrees
+    :type T_t: float or int or None, optional
+    :raises ValueError: Insufficient inputs provided to calculate sonic velocity.
+    :return: Speed of sound defined by function arguments, 
+        calculated according to valid combination of function args
+    :rtype: float
+    """
+    if T:
+        a = (gamma*R*T)**.5
 
-        if T:
-            a = (gamma*R*T)**.5
+    elif p and rho:
+        a = (gamma*p/rho)**0.5
 
-        elif p and rho:
-            a = (gamma*p/rho)**0.5
+    elif u == 0 and T_t:
+        a = (gamma*R*T_t)**.5
+            
+    elif u == 0 and p_t and rho_t:
+        a = (gamma*p_t/rho_t)**0.5
 
-        elif u == 0 and T_t:
-            a = (gamma*R*T_t)**.5
-                
-        elif u == 0 and p_t and rho_t:
-            a = (gamma*p_t/rho_t)**0.5
+    else:
+        raise ValueError('Lacking sufficient definition of properties required to calculate sonic velocity.')
 
     print(f'Speed of sound = {a}')
     return a
 
 def get_fluid_velocity(gamma=1.4,R=287,M=None,a=None,p=None,rho=None,T=None):
 
-    u = None
+    if M and a:
+        u = M*a
 
-    while not u:
+    elif M and not a and T:
+        u = M*(gamma*R*T)**0.5
 
-        if M and a:
-            u = M*a
+    elif M and not T and p and rho:
+        u = M*(gamma*p/rho)**0.5
 
-        elif M and not a and T:
-            u = M*(gamma*R*T)**0.5
-
-        elif M and not T and p and rho:
-            u = M*(gamma*p/rho)**0.5
-
-        elif M == 0:
-            u = 0
+    elif M == 0:
+        u = 0
 
     print(f'Fluid velocity = {u}')
     return u
@@ -168,294 +191,254 @@ def get_mach_number(gamma=1.4,R=287,a=None,u=None,p=None,rho=None,T=None,p_t_rat
     """
     Calculates Mach number
     """
-    M = None
+    if u and a:
+        M = u/a
 
-    while not M:
+    elif u and not a and T:
+        M = u/(gamma*R*T)**0.5
 
-        if u and a:
-            M = u/a
+    elif u and not a and not T and p and rho:
+        M = u/(gamma*p/rho)**0.5
 
-        elif u and not a and T:
-            M = u/(gamma*R*T)**0.5
+    elif p_t_ratio:
+        M = ((p_t_ratio**((gamma-1)/gamma)-1)*2/(gamma-1))**0.5
+        pass
 
-        elif u and not a and not T and p and rho:
-            M = u/(gamma*p/rho)**0.5
+    elif rho_t_ratio:
+        M = ((rho_t_ratio**(gamma-1)-1)*2/(gamma-1))**0.5
+        pass 
 
-        elif p_t_ratio:
-            M = ((p_t_ratio**((gamma-1)/gamma)-1)*2/(gamma-1))**0.5
-            pass
+    elif T_t_ratio:
+        M = ((T_t_ratio-1)*2/(gamma-1))**0.5
+        pass
 
-        elif rho_t_ratio:
-            M = ((rho_t_ratio**(gamma-1)-1)*2/(gamma-1))**0.5
-            pass 
-
-        elif T_t_ratio:
-            M = ((T_t_ratio-1)*2/(gamma-1))**0.5
-            pass
-
-        elif u == 0:
-            M = 0
+    elif u == 0:
+        M = 0
 
     print(f'Mach number= {M}')
     return M
 
 def get_static_pressure(gamma=1.4,R=287,M=None,u=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
 
-    p = None
+    if rho and T:
+        p = rho*R*T
+    
+    elif p_t and M:
+        p = p_t/(1 + (gamma-1) / 2 * M**2)**(gamma/(gamma-1))
 
-    while not p:
+    elif p_t_ratio and p_t:
+        p = p_t/p_t_ratio
 
-        if rho and T:
-            p = rho*R*T
-        
-        elif p_t and M:
-            p = p_t/(1 + (gamma-1) / 2 * M**2)**(gamma/(gamma-1))
+    elif p_t and T_t_ratio:
+        p = p_t/(T_t_ratio**(gamma/(gamma-1)))
 
-        elif p_t_ratio and p_t:
-            p = p_t/p_t_ratio
+    elif p_t and T and T_t:
+        p = p_t/((T_t/T)**(gamma/(gamma-1)))
 
-        elif p_t and T_t_ratio:
-            p = p_t/(T_t_ratio**(gamma/(gamma-1)))
+    elif p_t and rho_t_ratio:
+        p = p_t/rho_t_ratio**gamma
 
-        elif p_t and T and T_t:
-            p = p_t/((T_t/T)**(gamma/(gamma-1)))
+    elif p_t and rho and rho_t:
+        p = p_t/(rho_t/rho)**gamma
 
-        elif p_t and rho_t_ratio:
-            p = p_t/rho_t_ratio**gamma
-
-        elif p_t and rho and rho_t:
-            p = p_t/(rho_t/rho)**gamma
-
-        elif p_t and (u == 0):
-            p = p_t
+    elif p_t and (u == 0):
+        p = p_t
 
     print(f'Static pressure is {p}')
     return p
 
 def get_total_pressure(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
 
-    p_t = None
+    if rho_t and T_t:
+        p_t = rho_t*R*T_t
 
-    while not p_t:
+    elif p and M:
+        p_t = (1 + (gamma-1) / 2 * M**2)**(gamma/(gamma-1))*p
 
-        if rho_t and T_t:
-            p_t = rho_t*R*T_t
+    elif p_t_ratio and p:
+        p_t = p_t_ratio*p
 
-        elif p and M:
-            p_t = (1 + (gamma-1) / 2 * M**2)**(gamma/(gamma-1))*p
+    elif p and T_t_ratio:
+        p_t = p*(T_t_ratio**(gamma/(gamma-1)))
 
-        elif p_t_ratio and p:
-            p_t = p_t_ratio*p
+    elif p and T and T_t:
+        p_t = p*((T_t/T)**(gamma/(gamma-1)))
 
-        elif p and T_t_ratio:
-            p_t = p*(T_t_ratio**(gamma/(gamma-1)))
+    elif p and rho_t_ratio:
+        p_t = p*rho_t_ratio**gamma
 
-        elif p and T and T_t:
-            p_t = p*((T_t/T)**(gamma/(gamma-1)))
+    elif p and rho and rho_t:
+        p_t = p*(rho_t/rho)**gamma     
 
-        elif p and rho_t_ratio:
-            p_t = p*rho_t_ratio**gamma
-
-        elif p and rho and rho_t:
-            p_t = p*(rho_t/rho)**gamma     
-
-        elif p and (u == 0):
-            p_t = p
+    elif p and (u == 0):
+        p_t = p
     
     print(f'Total pressure = {p_t}')
     return p_t
 
 def get_pressure_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,rho_t_ratio=None,T_t_ratio=None):
 
-    p_t_ratio = None
+    if M:
+        p_t_ratio = (1 + (gamma-1) / 2 * M**2)**(gamma/(gamma-1))
 
-    while not p_t_ratio:
+    elif p and p_t:
+        p_t_ratio = p_t/p
 
-        if M:
-            p_t_ratio = (1 + (gamma-1) / 2 * M**2)**(gamma/(gamma-1))
+    elif rho_t_ratio:
+        p_t_ratio = rho_t_ratio**(gamma)
 
-        elif p and p_t:
-            p_t_ratio = p_t/p
-
-        elif rho_t_ratio:
-            p_t_ratio = rho_t_ratio**(gamma)
-
-        elif T_t_ratio:
-            p_t_ratio = T_t_ratio**(gamma/(gamma-1))
+    elif T_t_ratio:
+        p_t_ratio = T_t_ratio**(gamma/(gamma-1))
 
     print(f'p_t/p = {p_t_ratio}')
     return p_t_ratio
 
 def get_static_temperature(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
 
-    T = None
+    if p and rho:
+        T = p/(rho*R)
 
-    while not T:
+    elif T_t and M:
+        T = T_t/((1 + (gamma-1) / 2 * M**2))
 
-        if p and rho:
-            T = p/(rho*R)
+    elif T_t_ratio and T_t:
+        T = T_t/T_t_ratio
 
-        elif T_t and M:
-            T = T_t/((1 + (gamma-1) / 2 * M**2))
+    elif p_t_ratio and T_t:
+        T = T_t/p_t_ratio**((gamma-1)/gamma)
 
-        elif T_t_ratio and T_t:
-            T = T_t/T_t_ratio
+    elif p and p_t and T_t:
+        T = T_t/(p_t/p)**((gamma-1)/gamma)
 
-        elif p_t_ratio and T_t:
-            T = T_t/p_t_ratio**((gamma-1)/gamma)
+    elif rho_t_ratio and T_t:
+        T = T_t/rho_t_ratio**(1/(gamma-1))
 
-        elif p and p_t and T_t:
-            T = T_t/(p_t/p)**((gamma-1)/gamma)
+    elif rho and rho_t and T_t:
+        T = T_t/(rho_t/rho)**(1/(gamma-1))
 
-        elif rho_t_ratio and T_t:
-            T = T_t/rho_t_ratio**(1/(gamma-1))
-
-        elif rho and rho_t and T_t:
-            T = T_t/(rho_t/rho)**(1/(gamma-1))
-
-        elif T_t and (u == 0):
-            T = T_t
+    elif T_t and (u == 0):
+        T = T_t
 
     print(f'Static temperature = {T}')
     return T
 
 def get_total_temperature(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
 
-    T_t = None
+    if p_t and rho_t:
+        T_t = p_t/(rho_t*R)
 
-    while not T_t:
+    elif T and M:
+        T_t = T*((1 + (gamma-1) / 2 * M**2))
 
-        if p_t and rho_t:
-            T_t = p_t/(rho_t*R)
+    elif T and T_t:
+        T_t = T*T_t_ratio
 
-        elif T and M:
-            T_t = T*((1 + (gamma-1) / 2 * M**2))
+    elif p_t_ratio and T:
+        T_t = T*p_t_ratio**((gamma-1)/gamma)
 
-        elif T and T_t:
-            T_t = T*T_t_ratio
+    elif p and p_t and T:
+        T_t = T*(p_t/p)**((gamma-1)/gamma)            
 
-        elif p_t_ratio and T:
-            T_t = T*p_t_ratio**((gamma-1)/gamma)
+    elif rho_t_ratio and T:
+        T_t = T*rho_t_ratio**(1/(gamma-1))
 
-        elif p and p_t and T:
-            T_t = T*(p_t/p)**((gamma-1)/gamma)            
+    elif rho and rho_t and T:
+        T_t = T*(rho_t/rho_t_ratio)**(1/(gamma-1))
 
-        elif rho_t_ratio and T:
-            T_t = T*rho_t_ratio**(1/(gamma-1))
-
-        elif rho and rho_t and T:
-            T_t = T*(rho_t/rho_t_ratio)**(1/(gamma-1))
-
-        elif T and (u == 0):
-            T_t = T
+    elif T and (u == 0):
+        T_t = T
 
     print(f'Total temperature = {T_t}')
     return T_t
 
 def get_temperature_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None):
 
-    T_t_ratio = None
+    if M:
+        T_t_ratio = (1 + (gamma-1) / 2 * M**2)
 
-    while not T_t_ratio:
+    elif T and T_t:
+        T_t_ratio = T_t/T
 
-        if M:
-            T_t_ratio = (1 + (gamma-1) / 2 * M**2)
+    elif rho_t_ratio:
+        T_t_ratio = rho_t_ratio**(gamma-1)
 
-        elif T and T_t:
-            T_t_ratio = T_t/T
-
-        elif rho_t_ratio:
-            T_t_ratio = rho_t_ratio**(gamma-1)
-
-        elif p_t_ratio:
-            T_t_ratio = p_t_ratio**((gamma-1)/gamma)
+    elif p_t_ratio:
+        T_t_ratio = p_t_ratio**((gamma-1)/gamma)
 
     print(f'T_t/T = {T_t_ratio}')
     return T_t_ratio
 
 def get_static_density(gamma=1.4,R=287,M=None,u=None,p=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
 
-    rho = None
+    if p and T:
+        rho = p/(R*T)
+
+    elif rho_t and M:
+        rho = rho_t/((1 + (gamma-1) / 2 * M**2))**(1/(gamma-1))
+
+    elif rho_t and rho_t_ratio:
+        rho = rho_t/rho_t_ratio
     
-    while not rho:
+    elif p_t_ratio and rho_t:
+        rho = rho_t/p_t_ratio**(1/gamma)
 
-        if p and T:
-            rho = p/(R*T)
+    elif p and p_t and rho_t:
+        rho = rho_t/(p_t/p)**(1/gamma)
 
-        elif rho_t and M:
-            rho = rho_t/((1 + (gamma-1) / 2 * M**2))**(1/(gamma-1))
+    elif T_t_ratio and rho_t:
+        rho = rho_t/T_t_ratio**(1/(gamma-1))
 
-        elif rho_t and rho_t_ratio:
-            rho = rho_t/rho_t_ratio
-        
-        elif p_t_ratio and rho_t:
-            rho = rho_t/p_t_ratio**(1/gamma)
+    elif T and T_t and rho_t:
+        rho = rho_t/(T_t/T)**(1/(gamma-1))
 
-        elif p and p_t and rho_t:
-            rho = rho_t/(p_t/p)**(1/gamma)
-
-        elif T_t_ratio and rho_t:
-            rho = rho_t/T_t_ratio**(1/(gamma-1))
-
-        elif T and T_t and rho_t:
-            rho = rho_t/(T_t/T)**(1/(gamma-1))
-
-        elif rho_t and (u == 0):
-            rho = rho_t
+    elif rho_t and (u == 0):
+        rho = rho_t
 
     print(f'Static density = {rho}')
     return rho
 
 def get_total_density(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
 
-    rho_t = None
+    if p_t and T_t:
+        rho_t = p_t/(R*T_t)
+
+    elif rho and M:
+        rho_t = rho*((1 + (gamma-1) / 2 * M**2))**(1/(gamma-1))
+
+    elif rho and rho_t_ratio:
+        rho_t = rho*rho_t_ratio
     
-    while not rho_t:
+    elif p_t_ratio and rho:
+        rho_t = rho*p_t_ratio**(1/gamma)
 
-        if p_t and T_t:
-            rho_t = p_t/(R*T_t)
+    elif p and p_t and rho:
+        rho_t = rho*(p_t/p)**(1/gamma)
+    
+    elif T_t_ratio and rho:
+        rho_t = rho*T_t_ratio**(1/(gamma-1))
 
-        elif rho and M:
-            rho_t = rho*((1 + (gamma-1) / 2 * M**2))**(1/(gamma-1))
+    elif T and T_t and rho:
+        rho_t = rho*(T_t/T)**(1/(gamma-1))
 
-        elif rho and rho_t_ratio:
-            rho_t = rho*rho_t_ratio
-        
-        elif p_t_ratio and rho:
-            rho_t = rho*p_t_ratio**(1/gamma)
-
-        elif p and p_t and rho:
-            rho_t = rho*(p_t/p)**(1/gamma)
-        
-        elif T_t_ratio and rho:
-            rho_t = rho*T_t_ratio**(1/(gamma-1))
-
-        elif T and T_t and rho:
-            rho_t = rho*(T_t/T)**(1/(gamma-1))
-
-        elif rho and (u == 0):
-            rho_t = rho
+    elif rho and (u == 0):
+        rho_t = rho
 
     print(f'Total density = {rho_t}')
     return rho_t
 
 def get_density_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,T_t_ratio=None):
 
-    rho_t_ratio = None
+    if M:
+        rho_t_ratio = (1 + (gamma-1) / 2 * M**2)**(1/(gamma-1))
 
-    while not rho_t_ratio:
+    elif rho and rho_t:
+        rho_t_ratio = rho_t/rho
 
-        if M:
-            rho_t_ratio = (1 + (gamma-1) / 2 * M**2)**(1/(gamma-1))
+    elif T_t_ratio:
+        rho_t_ratio = T_t_ratio**(1/(gamma-1))
 
-        elif rho and rho_t:
-            rho_t_ratio = rho_t/rho
-
-        elif T_t_ratio:
-            rho_t_ratio = T_t_ratio**(1/(gamma-1))
-
-        elif p_t_ratio:
-            rho_t_ratio = p_t_ratio**(1/gamma)
+    elif p_t_ratio:
+        rho_t_ratio = p_t_ratio**(1/gamma)
 
     print(f'rho_t/rho = {rho_t_ratio}')
     return rho_t_ratio
