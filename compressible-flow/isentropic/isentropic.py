@@ -4,11 +4,12 @@
 
 # Currently will run in a loop until all states fully defined
 # Does not check for compatibility between states
-# Does not catch errors
+# Does not catch all errors
 
 # To Do:
 # Add sonic ratios
-# Add class and function documentation and usage
+# Add mass flow
+# Finish documentation of function calculations
 
 class CompressibleFlow:
     r"""CompressibleFlow class
@@ -280,6 +281,22 @@ def get_fluid_velocity(gamma=1.4,R=287,M=None,a=None,p=None,rho=None,T=None):
     """Calculates fluid velocity, :math:`u`, based on Mach number and 
     thermodynamic properties.
 
+    This function can solve for the fluid velocity in several different ways.
+
+    Given :math:`M` and :math:`a`:
+
+        * :math:`u = M*a`
+    
+    Given :math:`M` and :math:`T`:
+
+        * :math:`u = M * \\sqrt{\\gamma*R*T}`
+
+    Given :math:`M`, :math:`P`, and :math:`\\rho`:
+
+        * :math:`u = M * \\sqrt{\\gamma*p/\\rho}`
+
+    If :math:`M = 0`, the flow is stagnant and :math:`u = 0`.
+
     Parameters
     ----------
     gamma : float, optional
@@ -321,8 +338,31 @@ def get_fluid_velocity(gamma=1.4,R=287,M=None,a=None,p=None,rho=None,T=None):
 def get_mach_number(gamma=1.4,R=287,a=None,u=None,p=None,rho=None,T=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
     """Calculates fluid Mach number, :math:`M`.
 
-    Depending on arguments given, calculates Mach number in one of several
-    possible ways.
+    This function can solve for the fluid Mach number in several different ways.
+
+    Given :math:`u` and :math:`a`:
+
+        * :math:`M = u/a`
+    
+    Given :math:`M` and :math:`T`:
+
+        * :math:`M = u / \\sqrt{\\gamma*R*T}`
+
+    Given :math:`M`, :math:`p`, and :math:`\\rho`:
+
+        * :math:`M = u / \\sqrt{\\gamma*p/\\rho}`
+
+    Given :math:`p_t/p`:
+
+        * :math:`M = \\sqrt{((\\frac{p_t}{p})^{\\frac{\\gamma-1}{\\gamma}} - 1) * \\frac{2}{\\gamma-1}}`
+
+    Given :math:`\\rho_t/\\rho`:
+
+        * :math:`M = \\sqrt{((\\frac{\\rho_t}{\\rho})^{\\gamma-1} - 1) * \\frac{2}{\\gamma-1}}`
+
+    Given :math:`T_t/T`:
+
+        * :math:`M = \\sqrt{((\\frac{T_t}{T}) - 1) * \\frac{2}{\\gamma-1}}`
 
     Parameters
     ----------
@@ -382,6 +422,38 @@ def get_mach_number(gamma=1.4,R=287,a=None,u=None,p=None,rho=None,T=None,p_t_rat
 
 def get_static_pressure(gamma=1.4,R=287,M=None,u=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
     """Calculates fluid static pressure, :math:`p`.
+
+    This function can solve for the fluid static pressure in several different ways.
+
+    Given :math:`\\rho` and :math:`T`:
+
+        * :math:`p = \\rho*R*T`
+    
+    Given :math:`M` and :math:`p_t`:
+
+        * :math:`p = \\frac{p_t}{(1 + \\frac{\\gamma-1}{2} * M^2)^{\\frac{\\gamma}{\\gamma-1}}}`
+
+    Given :math:`p_t/p` and :math:`p_t`:
+
+       * :math:`p = \\frac{p_t}{\\frac{p_t}{p}}`
+
+    Given :math:`p_t` and :math:`T_t/T`:
+
+        * :math:`p = \\frac{p_t}{{(\\frac{T_t}{T}})^{\\frac{\\gamma}{\\gamma-1}}}`
+
+    Given :math:`p_t` and :math:`T_t` and :math:`T`:
+
+        * :math:`p = \\frac{p_t}{{(\\frac{T_t}{T}})^{\\frac{\\gamma}{\\gamma-1}}}`
+
+    Given :math:`p_t` and :math:`\\rho_t/\\rho`:
+
+        * :math:`p = \\frac{p_t}{{(\\frac{\\rho_t}{\\rho}})^{\\gamma}}`
+
+    Given :math:`p_t` and :math:`\\rho_t` and :math:`\\rho`:
+
+        * :math:`p = \\frac{p_t}{{(\\frac{\\rho_t}{\\rho}})^{\\gamma}}`
+
+    If fluid velocity or Mach number are 0 the flow is stagnant and :math:`p = p_t`.
 
     Parameters
     ----------
@@ -446,11 +518,42 @@ def get_static_pressure(gamma=1.4,R=287,M=None,u=None,rho=None,T=None,p_t=None,r
 def get_total_pressure(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
     """Calculates fluid total pressure, :math:`p_t`.
 
+    This function can solve for the fluid total pressure in several different ways.
+
+    Given :math:`\\rho_t` and :math:`T_t`:
+
+        * :math:`p_t = \\rho*R_t*T_t`
+    
+    Given :math:`M` and :math:`p`:
+
+        * :math:`p_t = p*(1 + \\frac{\\gamma-1}{2} * M^2)^{\\frac{\\gamma}{\\gamma-1}}`
+
+    Given :math:`p_t/p` and :math:`p`:
+
+       * :math:`p_t = p*\\frac{p_t}{p}`
+
+    Given :math:`p` and :math:`T_t/T`:
+
+        * :math:`p_t = p*{(\\frac{T_t}{T}})^{\\frac{\\gamma}{\\gamma-1}}`
+
+    Given :math:`p` and :math:`T_t` and :math:`T`:
+
+        * :math:`p_t = p*{(\\frac{T_t}{T}})^{\\frac{\\gamma}{\\gamma-1}}`
+
+    Given :math:`p` and :math:`\\rho_t/\\rho`:
+
+        * :math:`p_t = p*{(\\frac{\\rho_t}{\\rho}})^{\\gamma}`
+
+    Given :math:`p` and :math:`\\rho_t` and :math:`\\rho`:
+
+        * :math:`p_t = p*{(\\frac{\\rho_t}{\\rho}})^{\\gamma}`
+
+    If fluid velocity or Mach number are 0 the flow is stagnant and :math:`p_t = p`.
+
     Parameters
     ----------
     gamma : float, optional
-        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
-        calorically perfect air
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for calorically perfect air
     R : int or float
         *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
     M : float or int or None, optional
@@ -509,6 +612,34 @@ def get_total_pressure(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,rho_
 def get_pressure_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,rho_t_ratio=None,T_t_ratio=None):
     """Calculates fluid total-to-static pressure ratio, :math:`p_t/p`.
 
+    This function can solve for the fluid total-to-static pressure ratio in several different ways.
+    
+    Given :math:`M`:
+
+        * :math:`p_t/p = (1 + \\frac{\\gamma-1}{2} * M^2)^{\\frac{\\gamma}{\\gamma-1}}`
+
+    Given :math:`p_t` and :math:`p`:
+
+       * :math:`p_t/p = p_t/p`
+
+    Given :math:`\\rho_t/\\rho`:
+
+        * :math:`p_t/p = (\\frac{p_t}{p})^{\\gamma}`
+
+    Given :math:`\\rho_t` and :math:`\\rho`:
+
+        * :math:`p_t/p = (\\frac{p_t}{p})^{\\gamma}`
+
+    Given :math:`T_t/T`:
+
+        * :math:`p_t/p = (\\frac{T_t}{T})^{\\frac{\\gamma}{\\gamma-1}}`
+
+    Given :math:`T_t` and :math:`T`:
+
+        * :math:`p_t/p = (\\frac{T_t}{T})^{\\frac{\\gamma}{\\gamma-1}}`
+
+    If fluid velocity or Mach number are 0 the flow is stagnant and :math:`p_t/p = 1`.
+
     Parameters
     ----------
     gamma : float, optional
@@ -553,6 +684,9 @@ def get_pressure_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=
 
     elif T_t_ratio:
         p_t_ratio = T_t_ratio**(gamma/(gamma-1))
+
+    elif u == 0:
+        p_t_ratio = 1
 
     print(f'p_t/p = {p_t_ratio}')
     return p_t_ratio
@@ -731,6 +865,9 @@ def get_temperature_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p
     elif p_t_ratio:
         T_t_ratio = p_t_ratio**((gamma-1)/gamma)
 
+    elif u == 0:
+        T_t_ratio = 1
+
     print(f'T_t/T = {T_t_ratio}')
     return T_t_ratio
 
@@ -907,6 +1044,9 @@ def get_density_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=N
 
     elif p_t_ratio:
         rho_t_ratio = p_t_ratio**(1/gamma)
+
+    elif u == 0:
+        rho_t_ratio = 1
 
     print(f'rho_t/rho = {rho_t_ratio}')
     return rho_t_ratio
