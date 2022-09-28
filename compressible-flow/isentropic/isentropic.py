@@ -624,11 +624,11 @@ def get_pressure_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=
 
     Given :math:`\\rho_t/\\rho`:
 
-        * :math:`p_t/p = (\\frac{p_t}{p})^{\\gamma}`
+        * :math:`p_t/p = (\\frac{\\rho_t}{\\rho})^{\\gamma}`
 
     Given :math:`\\rho_t` and :math:`\\rho`:
 
-        * :math:`p_t/p = (\\frac{p_t}{p})^{\\gamma}`
+        * :math:`p_t/p = (\\frac{\\rho_t}{\\rho})^{\\gamma}`
 
     Given :math:`T_t/T`:
 
@@ -694,6 +694,38 @@ def get_pressure_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=
 def get_static_temperature(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
     """Calculates fluid static temperature, :math:`T`.
 
+    This function can solve for the fluid static temperature in several different ways.
+
+    Given :math:`\\rho` and :math:`p`:
+
+        * :math:`T = p/(\\rho*R)`
+    
+    Given :math:`M` and :math:`T_t`:
+
+        * :math:`T = \\frac{T_t}{(1 + \\frac{\\gamma-1}{2} * M^2)}`
+
+    Given :math:`T_t/T` and :math:`T_t`:
+
+       * :math:`T = \\frac{T_t}{\\frac{T_t}{T}}`
+
+    Given :math:`T_t` and :math:`p_t/p`:
+
+        * :math:`T = \\frac{T_t}{{(\\frac{p_t}{p}})^{\\frac{\\gamma-1}{\\gamma}}}`
+
+    Given :math:`T_t` and :math:`p_t` and :math:`p`:
+
+        * :math:`T = \\frac{T_t}{{(\\frac{p_t}{p}})^{\\frac{\\gamma-1}{\\gamma}}}`
+
+    Given :math:`T_t` and :math:`\\rho_t/\\rho`:
+
+        * :math:`T = \\frac{T_t}{{(\\frac{\\rho_t}{\\rho}})^{\\gamma-1}}`
+
+    Given :math:`T_t` and :math:`\\rho_t` and :math:`\\rho`:
+
+        * :math:`T = \\frac{T_t}{{(\\frac{\\rho_t}{\\rho}})^{\\gamma-1}}`
+
+    If fluid velocity or Mach number are 0 the flow is stagnant and :math:`T = T_t`.
+
     Parameters
     ----------
     gamma : float, optional
@@ -743,10 +775,10 @@ def get_static_temperature(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,p_t=Non
         T = T_t/(p_t/p)**((gamma-1)/gamma)
 
     elif rho_t_ratio and T_t:
-        T = T_t/rho_t_ratio**(1/(gamma-1))
+        T = T_t/rho_t_ratio**((gamma-1))
 
     elif rho and rho_t and T_t:
-        T = T_t/(rho_t/rho)**(1/(gamma-1))
+        T = T_t/(rho_t/rho)**((gamma-1))
 
     elif T_t and (u == 0):
         T = T_t
@@ -756,6 +788,38 @@ def get_static_temperature(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,p_t=Non
 
 def get_total_temperature(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
     """Calculates fluid total temperature, :math:`T_t`
+
+    This function can solve for the fluid total temperature in several different ways.
+
+    Given :math:`\\rho_t` and :math:`p_t`:
+
+        * :math:`T_t = p_t/(\\rho_t*R)`
+    
+    Given :math:`M` and :math:`T`:
+
+        * :math:`T_t = T*(1 + \\frac{\\gamma-1}{2} * M^2)`
+
+    Given :math:`T_t/T` and :math:`T`:
+
+       * :math:`T_t = T*\\frac{T_t}{T}`
+
+    Given :math:`T` and :math:`p_t/p`:
+
+        * :math:`T_t = T*(\\frac{p_t}{p})^{\\frac{\\gamma-1}{\\gamma}}`
+
+    Given :math:`T` and :math:`p_t` and :math:`p`:
+
+        * :math:`T_t = T*(\\frac{p_t}{p})^{\\frac{\\gamma-1}{\\gamma}}`
+
+    Given :math:`T` and :math:`\\rho_t/\\rho`:
+
+        * :math:`T_t = T*(\\frac{\\rho_t}{\\rho})^{\\gamma-1}`
+
+    Given :math:`T` and :math:`\\rho_t` and :math:`\\rho`:
+
+        * :math:`T_t = T*(\\frac{\\rho_t}{\\rho})^{\\gamma-1}`
+
+    If fluid velocity or Mach number are 0 the flow is stagnant and :math:`T_t = T`.
 
     Parameters
     ----------
@@ -806,10 +870,10 @@ def get_total_temperature(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p
         T_t = T*(p_t/p)**((gamma-1)/gamma)            
 
     elif rho_t_ratio and T:
-        T_t = T*rho_t_ratio**(1/(gamma-1))
+        T_t = T*rho_t_ratio**((gamma-1))
 
     elif rho and rho_t and T:
-        T_t = T*(rho_t/rho_t_ratio)**(1/(gamma-1))
+        T_t = T*(rho_t/rho_t_ratio)**((gamma-1))
 
     elif T and (u == 0):
         T_t = T
@@ -819,6 +883,34 @@ def get_total_temperature(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p
 
 def get_temperature_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None):
     """Calculates fluid total-to-static temperature ratio, :math:`T_t/T`.
+
+    This function can solve for the fluid total-to-static temperature ratio in several different ways.
+    
+    Given :math:`M`:
+
+        * :math:`T_t/T = (1 + \\frac{\\gamma-1}{2} * M^2)`
+
+    Given :math:`T_t` and :math:`T`:
+
+       * :math:`T_t/T = T_t/T`
+
+    Given :math:`\\rho_t/\\rho`:
+
+        * :math:`T_t/T = (\\frac{\\rho_t}{\\rho})^{\\gamma-1}`
+
+    Given :math:`\\rho_t` and :math:`\\rho`:
+
+        * :math:`T_t/T = (\\frac{\\rho_t}{\\rho})^{\\gamma-1}`
+
+    Given :math:`p_t/p`:
+
+        * :math:`T_t/T = (\\frac{p_t}{p})^{\\frac{\\gamma-1}{\\gamma}}`
+
+    Given :math:`p_t` and :math:`p`:
+
+        * :math:`T_t/T =(\\frac{p_t}{p})^{\\frac{\\gamma-1}{\\gamma}}`
+
+    If fluid velocity or Mach number are 0 the flow is stagnant and :math:`T_t/T = 1`.
 
     Parameters
     ----------
@@ -873,6 +965,38 @@ def get_temperature_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p
 
 def get_static_density(gamma=1.4,R=287,M=None,u=None,p=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
     """Calculates fluid static density, :math:`\\rho`
+
+    This function can solve for the fluid static density in several different ways.
+
+    Given :math:`T` and :math:`p`:
+
+        * :math:`\\rho = p/(R*T)`
+    
+    Given :math:`M` and :math:`\\rho_t`:
+
+        * :math:`\\rho = \\frac{\\rho_t}{(1 + \\frac{\\gamma-1}{2} * M^2)^{\\frac{1}{\\gamma-1}}}`
+
+    Given :math:`\\rho_t/\\rho` and :math:`\\rho_t`:
+
+       * :math:`\\rho = \\frac{\\rho_t}{\\frac{\\rho_t}{\\rho}}`
+
+    Given :math:`\\rho_t` and :math:`p_t/p`:
+
+        * :math:`\\rho = \\frac{\\rho_t}{{(\\frac{p_t}{p}})^{\\frac{1}{\\gamma}}}`
+
+    Given :math:`\\rho_t` and :math:`p_t` and :math:`p`:
+
+        * :math:`\\rho = \\frac{\\rho_t}{{(\\frac{p_t}{p}})^{\\frac{1}{\\gamma}}}`
+
+    Given :math:`\\rho_t` and :math:`T_t/T`:
+
+        * :math:`\\rho = \\frac{\\rho_t}{{(\\frac{T_t}{T}})^{\\frac{1}{\\gamma-1}}}`
+
+    Given :math:`\\rho_t` and :math:`T_t` and :math:`T`:
+
+        * :math:`\\rho = \\frac{\\rho_t}{{(\\frac{T_t}{T}})^{\\frac{1}{\\gamma-1}}}`
+
+    If fluid velocity or Mach number are 0 the flow is stagnant and :math:`\\rho = \\rho_t`.
 
     Parameters
     ----------
@@ -937,6 +1061,38 @@ def get_static_density(gamma=1.4,R=287,M=None,u=None,p=None,T=None,p_t=None,rho_
 def get_total_density(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None):
     """Calculates fluid total density.
 
+    This function can solve for the fluid total density in several different ways.
+
+    Given :math:`T_t` and :math:`p_t`:
+
+        * :math:`\\rho_t = p_t/(R*T_t)`
+    
+    Given :math:`M` and :math:`\\rho`:
+
+        * :math:`\\rho_t = \\rho * (1 + \\frac{\\gamma-1}{2} * M^2)^{\\frac{1}{\\gamma-1}}`
+
+    Given :math:`\\rho_t/\\rho` and :math:`\\rho`:
+
+        * :math:`\\rho_t = \\rho * \\frac{\\rho_t}{\\rho}`
+
+    Given :math:`\\rho` and :math:`p_t/p`:
+
+        * :math:`\\rho_t = \\rho*(\\frac{p_t}{p})^{\\frac{1}{\\gamma}}`
+
+    Given :math:`\\rho` and :math:`p_t` and :math:`p`:
+
+        * :math:`\\rho_t = \\rho*(\\frac{p_t}{p})^{\\frac{1}{\\gamma}}`
+
+    Given :math:`\\rho` and :math:`T_t/T`:
+
+        * :math:`\\rho_t = \\rho*(\\frac{T_t}{T})^{\\frac{1}{\\gamma-1}}`
+
+    Given :math:`\\rho` and :math:`T_t` and :math:`T`:
+
+        * :math:`\\rho_t = \\rho*(\\frac{T_t}{T})^{\\frac{1}{\\gamma-1}}`
+
+    If fluid velocity or Mach number are 0 the flow is stagnant and :math:`\\rho = \\rho_t`.
+
     Parameters
     ----------
     gamma : float, optional
@@ -999,6 +1155,34 @@ def get_total_density(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=N
 
 def get_density_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,T_t_ratio=None):
     """Calculates fluid total-to-static density ratio, :math:`\\rho_t/\\rho`.
+
+    This function can solve for the fluid total-to-static density ratio in several different ways.
+    
+    Given :math:`M`:
+
+        * :math:`\\rho_t/\\rho = (1 + \\frac{\\gamma-1}{2} * M^2)^{\\frac{1}{\\gamma-1}}`
+
+    Given :math:`\\rho_t` and :math:`\\rho`:
+
+       * :math:`\\rho_t/\\rho = \\rho_t/\\rho`
+
+    Given :math:`p_t/p`:
+
+        * :math:`\\rho_t/\\rho = (\\frac{p_t}{p})^{\\frac{1}{\\gamma}}`
+
+    Given :math:`p_t` and :math:`p`:
+
+        * :math:`\\rho_t/\\rho = (\\frac{p_t}{p})^{\\frac{1}{\\gamma}}`
+
+    Given :math:`T_t/T`:
+
+        * :math:`\\rho_t/\\rho = (\\frac{T_t}{T})^{\\frac{1}{\\gamma-1}}`
+
+    Given :math:`T_t` and :math:`T`:
+
+        * :math:`\\rho_t/\\rho = (\\frac{T_t}{T})^{\\frac{1}{\\gamma-1}}`
+
+    If fluid velocity or Mach number are 0 the flow is stagnant and :math:`\\rho_t/\\rho = 1`.
 
     Parameters
     ----------

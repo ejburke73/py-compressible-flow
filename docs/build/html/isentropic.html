@@ -137,6 +137,44 @@ appropriate calculations.</p>
 <dt class="sig sig-object py" id="isentropic.isentropic.get_density_ratio">
 <span class="sig-prename descclassname"><span class="pre">isentropic.isentropic.</span></span><span class="sig-name descname"><span class="pre">get_density_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">287</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#isentropic.isentropic.get_density_ratio" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates fluid total-to-static density ratio, <span class="math notranslate nohighlight">\(\rho_t/\rho\)</span>.</p>
+<p>This function can solve for the fluid total-to-static density ratio in several different ways.</p>
+<p>Given <span class="math notranslate nohighlight">\(M\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t/\rho = (1 + \frac{\gamma-1}{2} * M^2)^{\frac{1}{\gamma-1}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho_t\)</span> and <span class="math notranslate nohighlight">\(\rho\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t/\rho = \rho_t/\rho\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(p_t/p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t/\rho = (\frac{p_t}{p})^{\frac{1}{\gamma}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(p_t\)</span> and <span class="math notranslate nohighlight">\(p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t/\rho = (\frac{p_t}{p})^{\frac{1}{\gamma}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T_t/T\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t/\rho = (\frac{T_t}{T})^{\frac{1}{\gamma-1}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T_t\)</span> and <span class="math notranslate nohighlight">\(T\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t/\rho = (\frac{T_t}{T})^{\frac{1}{\gamma-1}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>If fluid velocity or Mach number are 0 the flow is stagnant and <span class="math notranslate nohighlight">\(\rho_t/\rho = 1\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -297,13 +335,13 @@ calorically perfect air</p></li>
 <p>Given <span class="math notranslate nohighlight">\(\rho_t/\rho\)</span>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(p_t/p = (\frac{p_t}{p})^{\gamma}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(p_t/p = (\frac{\rho_t}{\rho})^{\gamma}\)</span></p></li>
 </ul>
 </div></blockquote>
 <p>Given <span class="math notranslate nohighlight">\(\rho_t\)</span> and <span class="math notranslate nohighlight">\(\rho\)</span>:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(p_t/p = (\frac{p_t}{p})^{\gamma}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(p_t/p = (\frac{\rho_t}{\rho})^{\gamma}\)</span></p></li>
 </ul>
 </div></blockquote>
 <p>Given <span class="math notranslate nohighlight">\(T_t/T\)</span>:</p>
@@ -404,6 +442,50 @@ calorically perfect air</p></li>
 <dt class="sig sig-object py" id="isentropic.isentropic.get_static_density">
 <span class="sig-prename descclassname"><span class="pre">isentropic.isentropic.</span></span><span class="sig-name descname"><span class="pre">get_static_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">287</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#isentropic.isentropic.get_static_density" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates fluid static density, <span class="math notranslate nohighlight">\(\rho\)</span></p>
+<p>This function can solve for the fluid static density in several different ways.</p>
+<p>Given <span class="math notranslate nohighlight">\(T\)</span> and <span class="math notranslate nohighlight">\(p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho = p/(R*T)\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(M\)</span> and <span class="math notranslate nohighlight">\(\rho_t\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho = \frac{\rho_t}{(1 + \frac{\gamma-1}{2} * M^2)^{\frac{1}{\gamma-1}}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho_t/\rho\)</span> and <span class="math notranslate nohighlight">\(\rho_t\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho = \frac{\rho_t}{\frac{\rho_t}{\rho}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho_t\)</span> and <span class="math notranslate nohighlight">\(p_t/p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho = \frac{\rho_t}{{(\frac{p_t}{p}})^{\frac{1}{\gamma}}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho_t\)</span> and <span class="math notranslate nohighlight">\(p_t\)</span> and <span class="math notranslate nohighlight">\(p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho = \frac{\rho_t}{{(\frac{p_t}{p}})^{\frac{1}{\gamma}}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho_t\)</span> and <span class="math notranslate nohighlight">\(T_t/T\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho = \frac{\rho_t}{{(\frac{T_t}{T}})^{\frac{1}{\gamma-1}}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho_t\)</span> and <span class="math notranslate nohighlight">\(T_t\)</span> and <span class="math notranslate nohighlight">\(T\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho = \frac{\rho_t}{{(\frac{T_t}{T}})^{\frac{1}{\gamma-1}}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>If fluid velocity or Mach number are 0 the flow is stagnant and <span class="math notranslate nohighlight">\(\rho = \rho_t\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -510,6 +592,50 @@ calorically perfect air</p></li>
 <dt class="sig sig-object py" id="isentropic.isentropic.get_static_temperature">
 <span class="sig-prename descclassname"><span class="pre">isentropic.isentropic.</span></span><span class="sig-name descname"><span class="pre">get_static_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">287</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#isentropic.isentropic.get_static_temperature" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates fluid static temperature, <span class="math notranslate nohighlight">\(T\)</span>.</p>
+<p>This function can solve for the fluid static temperature in several different ways.</p>
+<p>Given <span class="math notranslate nohighlight">\(\rho\)</span> and <span class="math notranslate nohighlight">\(p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T = p/(\rho*R)\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(M\)</span> and <span class="math notranslate nohighlight">\(T_t\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T = \frac{T_t}{(1 + \frac{\gamma-1}{2} * M^2)}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T_t/T\)</span> and <span class="math notranslate nohighlight">\(T_t\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T = \frac{T_t}{\frac{T_t}{T}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T_t\)</span> and <span class="math notranslate nohighlight">\(p_t/p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T = \frac{T_t}{{(\frac{p_t}{p}})^{\frac{\gamma-1}{\gamma}}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T_t\)</span> and <span class="math notranslate nohighlight">\(p_t\)</span> and <span class="math notranslate nohighlight">\(p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T = \frac{T_t}{{(\frac{p_t}{p}})^{\frac{\gamma-1}{\gamma}}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T_t\)</span> and <span class="math notranslate nohighlight">\(\rho_t/\rho\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T = \frac{T_t}{{(\frac{\rho_t}{\rho}})^{\gamma-1}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T_t\)</span> and <span class="math notranslate nohighlight">\(\rho_t\)</span> and <span class="math notranslate nohighlight">\(\rho\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T = \frac{T_t}{{(\frac{\rho_t}{\rho}})^{\gamma-1}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>If fluid velocity or Mach number are 0 the flow is stagnant and <span class="math notranslate nohighlight">\(T = T_t\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -541,6 +667,44 @@ calorically perfect air</p></li>
 <dt class="sig sig-object py" id="isentropic.isentropic.get_temperature_ratio">
 <span class="sig-prename descclassname"><span class="pre">isentropic.isentropic.</span></span><span class="sig-name descname"><span class="pre">get_temperature_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">287</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#isentropic.isentropic.get_temperature_ratio" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates fluid total-to-static temperature ratio, <span class="math notranslate nohighlight">\(T_t/T\)</span>.</p>
+<p>This function can solve for the fluid total-to-static temperature ratio in several different ways.</p>
+<p>Given <span class="math notranslate nohighlight">\(M\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t/T = (1 + \frac{\gamma-1}{2} * M^2)\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T_t\)</span> and <span class="math notranslate nohighlight">\(T\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t/T = T_t/T\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho_t/\rho\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t/T = (\frac{\rho_t}{\rho})^{\gamma-1}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho_t\)</span> and <span class="math notranslate nohighlight">\(\rho\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t/T = (\frac{\rho_t}{\rho})^{\gamma-1}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(p_t/p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t/T = (\frac{p_t}{p})^{\frac{\gamma-1}{\gamma}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(p_t\)</span> and <span class="math notranslate nohighlight">\(p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t/T =(\frac{p_t}{p})^{\frac{\gamma-1}{\gamma}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>If fluid velocity or Mach number are 0 the flow is stagnant and <span class="math notranslate nohighlight">\(T_t/T = 1\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -572,6 +736,50 @@ calorically perfect air</p></li>
 <dt class="sig sig-object py" id="isentropic.isentropic.get_total_density">
 <span class="sig-prename descclassname"><span class="pre">isentropic.isentropic.</span></span><span class="sig-name descname"><span class="pre">get_total_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">287</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#isentropic.isentropic.get_total_density" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates fluid total density.</p>
+<p>This function can solve for the fluid total density in several different ways.</p>
+<p>Given <span class="math notranslate nohighlight">\(T_t\)</span> and <span class="math notranslate nohighlight">\(p_t\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t = p_t/(R*T_t)\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(M\)</span> and <span class="math notranslate nohighlight">\(\rho\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t = \rho * (1 + \frac{\gamma-1}{2} * M^2)^{\frac{1}{\gamma-1}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho_t/\rho\)</span> and <span class="math notranslate nohighlight">\(\rho\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t = \rho * \frac{\rho_t}{\rho}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho\)</span> and <span class="math notranslate nohighlight">\(p_t/p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t = \rho*(\frac{p_t}{p})^{\frac{1}{\gamma}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho\)</span> and <span class="math notranslate nohighlight">\(p_t\)</span> and <span class="math notranslate nohighlight">\(p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t = \rho*(\frac{p_t}{p})^{\frac{1}{\gamma}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho\)</span> and <span class="math notranslate nohighlight">\(T_t/T\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t = \rho*(\frac{T_t}{T})^{\frac{1}{\gamma-1}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(\rho\)</span> and <span class="math notranslate nohighlight">\(T_t\)</span> and <span class="math notranslate nohighlight">\(T\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\rho_t = \rho*(\frac{T_t}{T})^{\frac{1}{\gamma-1}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>If fluid velocity or Mach number are 0 the flow is stagnant and <span class="math notranslate nohighlight">\(\rho = \rho_t\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -677,6 +885,50 @@ calorically perfect air</p></li>
 <dt class="sig sig-object py" id="isentropic.isentropic.get_total_temperature">
 <span class="sig-prename descclassname"><span class="pre">isentropic.isentropic.</span></span><span class="sig-name descname"><span class="pre">get_total_temperature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">287</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_t_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#isentropic.isentropic.get_total_temperature" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates fluid total temperature, <span class="math notranslate nohighlight">\(T_t\)</span></p>
+<p>This function can solve for the fluid total temperature in several different ways.</p>
+<p>Given <span class="math notranslate nohighlight">\(\rho_t\)</span> and <span class="math notranslate nohighlight">\(p_t\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t = p_t/(\rho_t*R)\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(M\)</span> and <span class="math notranslate nohighlight">\(T\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t = T*(1 + \frac{\gamma-1}{2} * M^2)\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T_t/T\)</span> and <span class="math notranslate nohighlight">\(T\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t = T*\frac{T_t}{T}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T\)</span> and <span class="math notranslate nohighlight">\(p_t/p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t = T*(\frac{p_t}{p})^{\frac{\gamma-1}{\gamma}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T\)</span> and <span class="math notranslate nohighlight">\(p_t\)</span> and <span class="math notranslate nohighlight">\(p\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t = T*(\frac{p_t}{p})^{\frac{\gamma-1}{\gamma}}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T\)</span> and <span class="math notranslate nohighlight">\(\rho_t/\rho\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t = T*(\frac{\rho_t}{\rho})^{\gamma-1}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>Given <span class="math notranslate nohighlight">\(T\)</span> and <span class="math notranslate nohighlight">\(\rho_t\)</span> and <span class="math notranslate nohighlight">\(\rho\)</span>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(T_t = T*(\frac{\rho_t}{\rho})^{\gamma-1}\)</span></p></li>
+</ul>
+</div></blockquote>
+<p>If fluid velocity or Mach number are 0 the flow is stagnant and <span class="math notranslate nohighlight">\(T_t = T\)</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
