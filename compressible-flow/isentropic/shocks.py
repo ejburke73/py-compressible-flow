@@ -6,6 +6,8 @@
 
 # Does not check for errors
 # Does not solve for pre-shock mach number numerically, requires pressure ratio
+# To Do: 
+# should be able to only give one of the conditions and gamma and solve for everything else
 
 class NormalShock:
 

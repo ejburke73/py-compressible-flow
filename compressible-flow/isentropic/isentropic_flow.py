@@ -62,13 +62,12 @@ class CompressibleFlow:
                 self.T_ratio = self.get_temperature_ratio()
 
             if not rho_ratio:
-                self.rho_ratio = self.get_density_ratio()
+                self.rho_ratio = self.get_density_ratio() 
 
     def shock(self):
         shocked = NormalShock(M1=self.M,gamma=self.gamma,p1_static=self.p_static,rho1_static=self.rho_static,T1_static=self.T_static,p1_total=self.p_total,T1_total=self.T_total,rho1_total=self.rho_total)
         post_shock = CompressibleFlow(M=shocked.M2,p_static=shocked.p2_static,rho_static=shocked.rho2_static,T_static=shocked.T2_static)
         return shocked, post_shock
-        
 
     def get_sonic_velocity(self):
 
@@ -88,7 +87,7 @@ class CompressibleFlow:
             elif self.u == 0 and self.p_total and self.rho_total:
                 self.a = (self.gamma*self.p_total/self.rho_total)**0.5
 
-        print('Speed of sound = {self.a}')
+        print(f'Speed of sound = {self.a}')
         return self.a
 
     def get_fluid_velocity(self):
@@ -106,11 +105,17 @@ class CompressibleFlow:
             elif self.M and not self.T_static and self.p_static and self.rho_static:
                 self.u = self.M*(self.gamma*self.p_static/self.rho_static)**0.5
 
+            elif self.M == 0:
+                self.u = 0
+
         print(f'Fluid velocity = {self.u}')
         return self.u
 
     def get_mach_number(self):
-
+        # To Do: Add more ways to get mach (from ratios)
+        """
+        Calculates Mach number
+        """
         self.M = None
 
         while not self.M:
