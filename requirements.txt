@@ -1,1 +1,2 @@
+sphink-paramlinks
 numpy

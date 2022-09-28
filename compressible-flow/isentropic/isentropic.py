@@ -10,12 +10,59 @@
 # Add sonic ratios
 # Add class and function documentation and usage
 
-from wsgiref.validate import InputWrapper
-
 
 class CompressibleFlow:
+    r"""This class solves for all possible thermodynamic states of a compressible
+    flow using isentropic relations. These relations assume the working fluid
+    is a calorically perfect gas (CPG) with constant specific heats, :math:`c_p`
+    and :math:`c_v`. Assumptions also used in the derivation of these relationships:
+    steady flow, inviscid, no heat transfer/adiabatic, no irreversible work
+    modes, and 1-D flow (all properties only vary in x-direction).
+    The flow itself does not need to be isentropic for the methods
+    utilized to be valid -- the total conditions are idealized representations
+    of what would happen if the flow were isentropically brought to a rest.
+    If the flow is isentropic, direct use of total conditions betweeen two
+    points on a streamline is valid. Use of isentropic relations in non-
+    isentropic flows can still be useful for understanding the bulk trends
+    of a compressible flow problem.
 
-    def __init__(self,M=None,u=None,a=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,T_t_ratio=None,gamma=1.4,gas='Air',R=287):
+    :param M: Mach number, fluid velocity/speed of sound, defaults to None
+    :type M: float or int, optional
+    :param u: fluid velocity, length/time, defaults to None
+    :type u: float or int or None, optional
+    :param a: fluid speed of sound, defaults to None
+    :type a: float, optional
+    :param p: fluid static pressure, force/area, defaults to None
+    :type p: float or int or None, optional
+    :param rho: fluid static density, mass/volume, defaults to None
+    :type rho: float or int or None, optional
+    :param T: fluid static temperature, degrees, defaults to None
+    :type T: float or int or None, optional
+    :param p_t: fluid total pressure, force/area, defaults to None
+    :type p_t: float or int or None, optional
+    :param rho_t: fluid total density, mass/volume, defaults to None
+    :type rho_t: float or int or None, optional
+    :param T_t: fluid total temperature, degrees, defaults to None
+    :type T_t: float or int or None, optional
+    :param p_t_ratio: ratio of total pressure to static pressure, defaults to None
+    :type p_t_ratio: float or None, optional
+    :param rho_t_ratio: ratio of total density to static density, defaults to None
+    :type rho_t_ratio: float or None, optional
+    :param T_t_ratio: ratio of total temperature to static temperature, defaults to None
+    :type T_t_ratio: float or None, optional
+    :param gamma: ratio of specific heats, cp/cv, defaults to 1.4 for calorically perfect air
+    :type gamma: float
+    :param gas: working fluid, eventually to be updated with other gas library, defaults to 'Air'
+    :type gas: str, optional
+    :param R: specific gas constant, defaults to 287 J/kg*K for calorically perfect air
+    :type R: int or float
+    """
+
+    def __init__(self,M=None,u=None,a=None,p=None,rho=None,T=None,p_t=None,
+                rho_t=None,T_t=None,p_t_ratio=None,rho_t_ratio=None,
+                T_t_ratio=None,gamma=1.4,gas='Air',R=287):
+        """Constructor method for :class:`CompressibleFlow` class
+        """
         self.M = M
         self.u = u
         self.a = a
@@ -33,7 +80,8 @@ class CompressibleFlow:
         self.R = R
 
     def isentropic_state(self):
-
+        """Checks inputs to determine which method of calculations are performed
+        """
         mode = self.__isentropic_input_check()
         print(f'Calculation mode: {mode}')
 
@@ -129,23 +177,23 @@ class CompressibleFlow:
 def get_sonic_velocity(gamma=1.4,R=287,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None):
     """Calculates the speed of sound for a given fluid. Defaults to air with \gamma = 1.4, R = 287 J/kg*K.
 
-    :param gamma: ratio of specific heats, cp/cv, defaults to 1.4 for calorically perfect air
+    :param gamma: :py:param:`.CompressibleFlow.gamma`
     :type gamma: float
     :param R: specific gas constant, defaults to 287 J/kg*K for calorically perfect air
     :type R: int or float
-    :param u: fluid velocity, length/time
+    :param u: fluid velocity, length/time, defaults to None
     :type u: float or int or None, optional
-    :param p: fluid static pressure, force/area
+    :param p: fluid static pressure, force/area, defaults to None
     :type p: float or int or None, optional
-    :param rho: fluid static density, mass/volume
+    :param rho: fluid static density, mass/volume, defaults to None
     :type rho: float or int or None, optional
-    :param T: fluid static temperature, degrees
+    :param T: fluid static temperature, degrees, defaults to None
     :type T: float or int or None, optional
-    :param p_t: fluid total pressure, force/area
+    :param p_t: fluid total pressure, force/area, defaults to None
     :type p_t: float or int or None, optional
-    :param rho_t: fluid total density, mass/volume
+    :param rho_t: fluid total density, mass/volume, defaults to None
     :type rho_t: float or int or None, optional
-    :param T_t: fluid total temperature, degrees
+    :param T_t: fluid total temperature, degrees, defaults to None
     :type T_t: float or int or None, optional
     :raises ValueError: Insufficient inputs provided to calculate sonic velocity.
     :return: Speed of sound defined by function arguments, 
