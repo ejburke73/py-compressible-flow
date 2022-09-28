@@ -2,14 +2,12 @@
 
 #from shocks import NormalShock
 
-# Currently will run in a loop until all states fully defined
 # Does not check for compatibility between states
 # Does not catch all errors
 
 # To Do:
-# Add sonic ratios
-# Add mass flow
-# Finish documentation of function calculations
+# Finish documentation of mass flux/flow calculations
+# Write unit tests
 
 class CompressibleFlow:
     r"""CompressibleFlow class
@@ -202,7 +200,6 @@ class CompressibleFlow:
         #post_shock = CompressibleFlow(M=shocked.M2,p=shocked.p2_static,rho_static=shocked.rho2_static,T_static=shocked.T2_static)
         #return shocked, post_shock
         pass
-
 
 def get_sonic_velocity(gamma=1.4,R=287,u=None,p=None,rho=None,T=None,p_t=None,rho_t=None,T_t=None):
     """Calculates the speed of sound, :math:`a`, for a given fluid.
@@ -1235,6 +1232,185 @@ def get_density_ratio(gamma=1.4,R=287,M=None,u=None,p=None,rho=None,T=None,p_t=N
     print(f'rho_t/rho = {rho_t_ratio}')
     return rho_t_ratio
 
+def get_sonic_ratios(gamma=1.4,R=287):
+    """Calculates sonic to total ratios for a given :math:`\\gamma` and R.
+
+    This function uses the isentropic ratios with M=1 to 
+    output the thermodynamic ratios of sonic condition
+    to total condition for :math:`p, \\rho, T`. Default values 
+    are for air.
+
+        * :math:`p^*/p_t = (\\frac{2}{\\gamma+1})^{\\frac{\\gamma}{\\gamma-1}}`
+
+        * :math:`\\rho^*/\\rho_t= (\\frac{2}{\\gamma+1})^{\\frac{1}{\\gamma-1}}`
+
+        * :math:`T^*/T_t = (1+\\frac{\\gamma-1}{2})^{-1}`
+
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+
+    Returns
+    -------
+    p_star_p_t : float
+        ratio of sonic to total pressure
+    rho_star_rho_t : float
+        ratio of sonic to total density
+    T_star_T_t : float
+        ratio of sonic to total temperature
+
+    """
+
+    p_star_p_t = 1/get_pressure_ratio(gamma=gamma,R=R,M=1)
+    rho_star_rho_t = 1/get_density_ratio(gamma=gamma,R=R,M=1)
+    T_star_T_t = 1/get_temperature_ratio(gamma=gamma,R=R,M=1)
+    print(f'p*/p_t = {p_star_p_t}')
+    print(f'rho*/rho_t = {rho_star_rho_t}')
+    print(f'T*/T_t = {T_star_T_t}')
+    return p_star_p_t, rho_star_rho_t, T_star_T_t
+
+def get_sonic_area_ratio(gamma=1.4,M=None):
+    """Calculates the sonic area ratio, :math:`A/A^*`
+
+    This function calculates the sonic area ratio, :math:`A/A^*`,
+    for a given :math:`\\gamma` and :math:`M`.
+
+    :math:`\\frac{A}{A^*} = \\frac{1}{M} \\left[\\frac{2}{\\gamma + 1} \\left(1 + \\frac{\\gamma - 1}{2}M^2\\right) \\right] ^ { \\frac{\\gamma + 1}{2 (\\gamma - 1)}}`
+
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+
+    Returns
+    -------
+    A_A_star : float
+        Sonic area ratio, :math:`A/A^*`
+    """
+    A_A_star = 1 / M * (2 / (gamma + 1) * (1 + (gamma - 1) / 2 * M**2) ) ** ( (gamma + 1) / (2 * (gamma - 1) ) )
+    print(f'The sonic area ratio, A/A = {A_A_star}')
+    return A_A_star
+
+def get_mass_flux(gamma=1.4,R=287,M=None,p_t=None,T_t=None):
+    """Calculates the mass flux, :math:`\\dot{m}/A`
+
+    :math:`\\dot{m}/A = \\frac{p_t}{\\sqrt{R*T_t}} \\frac{\\sqrt{\\gamma}M}{\\left({1 + \\frac{\\gamma-1}{2}M^2}\\right)^{\\frac{\\gamma+1}{2(\\gamma-1)}}}`
+
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None   
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+
+    Returns
+    -------
+    mass_flux : float
+        Mass flux, :math:`\\dot{m}/A`
+    """
+    mass_flux = p_t/(R*T_t)**0.5 * (gamma)**0.5 * M / (1 + (gamma-1)/2 * M**2)**((gamma+1)/(2*(gamma-1)))
+    print(f'Mass flux = {mass_flux}')
+    return mass_flux
+
+def get_choked_mass_flux(gamma=1.4,R=287,p_t=None,T_t=None):
+    """Calculates choked mass flux (M=1), :math:`\\dot{m}/A^*`
+
+    :math:`\\dot{m}/A^* = \\frac{p_t}{\\sqrt{T_t}} \\sqrt{\\frac{\\gamma}{R} \\left({\\frac{2}{\\gamma+1}}\\right)^{\\frac{\\gamma+1}{\\gamma-1}}}`
+
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None   
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+
+    Returns
+    -------
+    choked_mass_flux : float
+        Mass flux through sonic (M=1) throat, :math:`\\dot{m}/A^*`
+    """
+    choked_mass_flux = get_mass_flux(gamma=gamma,R=R,M=1,p_t=p_t,T_t=T_t)
+    print(f'Choked mass flux = {choked_mass_flux}')
+    return choked_mass_flux
+
+def get_mass_flow(gamma=1.4,R=287,M=None,p_t=None,T_t=None,A=None):
+    """Calculates mass flow, :math:`\\dot{m}`, through a given area, :math:`A`
+
+    :math:`\\dot{m} = A * \\frac{p_t}{\\sqrt{R*T_t}} \\frac{\\sqrt{\\gamma}M}{\\left({1 + \\frac{\\gamma-1}{2}M^2}\\right)^{\\frac{\\gamma+1}{2(\\gamma-1)}}}`
+
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    M : float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.M`, by default None
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None   
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+    A : float or int or None, optional
+        area associated with flow at a certain point of interest, by default None
+
+    Returns
+    -------
+    mass_flow : float
+        Mass flow rate, :math:`\\dot{m}`, through given area, :math:`A`
+    """
+    mass_flow = A*get_mass_flux(gamma=gamma,R=R,M=M,p_t=p_t,T_t=T_t)
+    print(f'Mass flow = {mass_flow}')
+    return mass_flow
+
+def get_choked_mass_flow(gamma=1.4,R=287,p_t=None,T_t=None,A_throat=None):
+    """Calculates mass flow, :math:`\\dot{m}_{max}`, through sonic (M=1) throat with given area, :math:`A_{throat}`.
+
+    :math:`\\dot{m}_{max}` = A_{throat} * \\frac{p_t}{\\sqrt{T_t}} \\sqrt{\\frac{\\gamma}{R} \\left({\\frac{2}{\\gamma+1}}\\right)^{\\frac{\\gamma+1}{\\gamma-1}}}`
+
+    Parameters
+    ----------
+    gamma : float, optional
+        *See* :paramref:`.CompressibleFlow.gamma`, by default 1.4 for 
+        calorically perfect air
+    R : int or float
+        *See* :paramref:`.CompressibleFlow.r`, by default 287 J/kg*K
+    p_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.p_t`, by default None   
+    T_t: float or int or None, optional
+        *See* :paramref:`.CompressibleFlow.T_t`, by default None
+    A_throat : float or int or None, optional
+        throat area associated with sonic (M=1) flow by default None
+
+    Returns
+    -------
+    choked_mass_flow : float
+        Mass flow, :math:`\\dot{m}_{max}`, through sonic (M=1) throat with given area, :math:`A_{throat}`.
+    """
+    choked_mass_flow = A_throat*get_choked_mass_flux(gamma=gamma,R=R,M=1,p_t=p_t,T_t=T_t)
+    print(f'Choked mass flow = {choked_mass_flow}'), 
+    return choked_mass_flow
+
+
 if __name__=='__main__':
     #u = get_fluid_velocity(M=2,a=100)
     #u1 = get_fluid_velocity(M=2,T=300)
@@ -1251,4 +1427,5 @@ if __name__=='__main__':
     #one = get_mach_number(T_t_ratio=2)
     #two = get_mach_number(p_t_ratio=2)
     #three = get_mach_number(rho_t_ratio=2)
+    foo,bar,baz = get_sonic_ratios()
     print('I am done')

@@ -159,4 +159,4 @@ if __name__=='__main__':
     #p2t_p1 = get_p2_total_over_p1_static_normal_shock(M2=mach,p2_p1=p2r)
     #M1 = get_upstream_mach_normal_shock(M2=0.8,p2_p1=1.72)
 
-    foo = NormalShock(M1=1.5)
+    foo = get_mach_normal_shock(M1=0.5)
