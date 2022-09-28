@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
-from re import L
 from shocks import NormalShock
 
 # Currently will run in a loop until all states fully defined
 # Does not check for compatibility between states
 # Does not catch errors
 # Need to add option to input Mach and gamma to get total/static ratios without looping forever
+
+# To Do:
+# Add sonic ratios
 
 class CompressibleFlow:
 
@@ -111,10 +113,8 @@ class CompressibleFlow:
             raise ValueError('No Mach number defined, ideal gas not fully defined, no total ratios defined -- exiting now.')
         
     def report_outputs(self):
-        pairs = [(key,value) for (key,value) in zip(self.__dict__.keys(),self.__dict__.values())]
         for key,value in zip(self.__dict__.keys(),self.__dict__.values()):
             print(str(key) + ': ' + str(value))
-        #print(pairs)
 
     def shock(self):
         shocked = NormalShock(M1=self.M,gamma=self.gamma,p1_static=self.p,rho1_static=self.rho_static,T1_static=self.T_static,p1_total=self.p_total,T1_total=self.T_total,rho1_total=self.rho_total)

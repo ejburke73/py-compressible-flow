@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import numpy as np
+
 # Fully calculates post normal shock state given Mach and gamma
 # Ratios can be calculated without conditions
 # Post shock conditions require pre shock conditions
@@ -10,7 +12,7 @@
 # should be able to only give one of the conditions and gamma and solve for everything else
 # need to rename functions to be less dumb
 # recast shock relations into general oblique shock relations
-
+'''
 class NormalShock:
 
     """
@@ -47,10 +49,18 @@ class ObliqueShock:
 
     def __init__(self):
         pass
+'''
 
-def get_mach_normal_shock(M1=None,gamma=1.4):
-    M2 = ((1 + (gamma-1)/2 * M1**2) / (gamma * M1**2 - (gamma-1)/2))**0.5
+def get_mach_shock(M1=None,gamma=1.4,beta=90,theta=0):
+    beta = np.deg2rad(beta)
+    theta = np.deg2rad(theta)
+    M2 = (((1 + (gamma-1)/2 * M1**2*np.sin(beta)**2) / (gamma * M1**2*np.sin(beta)**2 - (gamma-1)/2))/np.sin(beta-theta)**2)**0.5
+    top = (M1**2 * np.sin(beta)**2 + 2/(gamma-1))
+    bottom = (2*gamma/(gamma-1)*M1**2*np.sin(beta)**2-1)
+    foo = (top/bottom)/(np.sin(beta-theta)**2)
+    bar = foo**0.5
     print(f'Post normal-shock Mach number = {M2}') 
+    print(foo)
     return M2
 
 def get_upstream_mach_normal_shock(M2=None,gamma=1.4,p2_p1=None):
@@ -159,4 +169,5 @@ if __name__=='__main__':
     #p2t_p1 = get_p2_total_over_p1_static_normal_shock(M2=mach,p2_p1=p2r)
     #M1 = get_upstream_mach_normal_shock(M2=0.8,p2_p1=1.72)
 
-    foo = NormalShock(M1=1.5)
+    goo = get_mach_shock(M1=2,theta=20,beta=20.8009155)
+    foo = get_mach_shock(M1=2)
