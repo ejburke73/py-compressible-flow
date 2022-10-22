@@ -6,7 +6,6 @@
 # Does not catch all errors
 
 # To Do:
-# Finish documentation of mass flux/flow calculations
 # Write unit tests
 
 class CompressibleFlow:

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
+from re import M
 import numpy as np
+import shocks as ns
+from scipy.optimize import fsolve
 
 # Fully calculates post normal shock state given Mach and gamma
 # Ratios can be calculated without conditions
@@ -50,6 +53,35 @@ class ObliqueShock:
     def __init__(self):
         pass
 '''
+
+def get_m1_normal(M1=None,beta=None):
+    beta_rad = np.deg2rad(beta)
+    M1n = M1*np.sin(beta_rad)
+    print(f'Normal component of incoming Mach = {M1n}')
+    return M1n
+
+def get_m2_normal(M1n=None,gamma=1.4):
+    M2n = ((M1n**2+2/(gamma-1)) / (2*gamma/(gamma-1)*M1n**2-1))**0.5
+    print(f'Normal component of downstream Mach = {M2n}')
+    return M2n
+
+def get_m2(M2n=None,beta=None,theta=None):
+    beta_rad =np.deg2rad(beta)
+    theta_rad = np.deg2rad(theta)
+    M2 = M2n/np.sin(beta_rad-theta_rad)
+    print(f'Post oblique shock Mach number = {M2}')
+    return M2
+
+def theta_beta_mach(M=None,theta=None,beta=None,gamma=1.4):
+    beta_rad = np.deg2rad(beta)
+    #eq = np.tan(theta) - 1/(2*np.tan(beta)) * (M**2*np.sin(beta)**2-1)/(M**2*(gamma+np.cos(2*beta))+2)
+    tanth = 2/(np.tan(beta_rad)) * (M**2*np.sin(beta_rad)**2-1)/(M**2*(gamma+np.cos(2*beta_rad))+2)
+    print(f'tantheta = {tanth}')
+    return tanth
+
+def wave_angle(gamma,M1,theta):
+    func = lambda beta : np.tan(theta * np.pi/180) - 2/np.tan(beta) * (( M1 * np.sin(beta *  np.pi/180) )**2 - 1) / (M1**2 * (gamma + np.cos(2 * beta * np.pi/180)) + 2 )
+    return fsolve(func,53)
 
 def get_mach_shock(M1=None,gamma=1.4,beta=90,theta=0):
     beta = np.deg2rad(beta)
@@ -156,6 +188,28 @@ def get_p2_total_over_p1_static_normal_shock(M2=None,gamma=1.4,p2_p1=None):
     print(f'P2t/P1 = {p2_t_p1}')
     return p2_t_p1
 
+    '''
+    # Oblique Shock Relations
+
+    #def WaveAngle(gamma,M1,theta):
+    #    func = lambda beta : np.tan(theta * np.pi/180) - 2/np.tan(beta) * (( M1 * np.sin(beta *  np.pi/180) )**2 - 1) / (M1**2 * (gamma + np.cos(2 * beta * np.pi/180)) + 2 )
+
+    #    return fsolve(func,53)
+
+    def M2Oblique(gamma,M1,beta,theta):
+        return ( ( ( 1 + (gamma - 1) / 2 * ( M1 * np.sin(beta *  np.pi/180) )**2 ) / ( gamma * ( M1 * np.sin(beta *  np.pi/180) )**2 - (gamma - 1) / 2 ) )**0.5) / ( np.sin( (beta - theta) * np.pi/180) )
+
+    def P2_P1Oblique(gamma,M1,beta):
+        return 2 * gamma / (gamma + 1) * (M1 * np.sin(beta *  np.pi/180) )**2 - (gamma - 1) / (gamma + 1)
+
+    def T2_T1Oblique(gamma,M1,beta):
+        return (1 + (gamma - 1) / 2 * (M1 * np.sin(beta *  np.pi/180) )**2) * (2 * gamma / ( gamma - 1) * (M1 * np.sin(beta *  np.pi/180) )**2 - 1 ) / ( (M1 * np.sin(beta *  np.pi/180) )**2 * (gamma + 1)**2 / (2*(gamma-1))  )
+
+    def Pt2_Pt1Oblique(gamma,M1,beta):
+        M = M1 * np.sin(beta *  np.pi/180)
+        return ( (gamma+1)/2*M**2  / ( 1 + (gamma-1)/2 * M**2) )**(gamma/(gamma-1)) * (2*gamma/(gamma+1) * M**2 - (gamma-1)/(gamma+1))**(1/(1-gamma))
+    '''
+
 
 if __name__=='__main__':
     #mach = get_mach_normal_shock(M1=1.5,gamma=1.4)
@@ -171,3 +225,7 @@ if __name__=='__main__':
 
     goo = get_mach_shock(M1=2,theta=20,beta=20.8009155)
     foo = get_mach_shock(M1=2)
+    boo = get_m1_normal(M1=5,beta=29.8)
+    gg = get_m2_normal(M1n=boo)
+    sdf = get_m2(M2n=gg,beta=29.800,theta=20.0)
+    zssdf = theta_beta_mach(M=5,beta=29.800)
